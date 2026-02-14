@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ottri — Disclosure & Consent Implementation Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ink:#0f0f11;--ink2:#2a2a2e;--ink3:#55555c;--ink4:#8b8b94;
+  --surf:#ffffff;--surf2:#f7f7f8;--surf3:#eeeff1;--surf4:#e2e3e6;
+  --accent:#e85d3a;--accent2:#c94a2a;
+  --purple:#5b3ba0;--purple-bg:#f3f0f9;
+  --green:#1a7a3a;--green-bg:#eef8f1;
+  --amber:#b45309;--amber-bg:#fef9ee;
+  --red:#c93030;--red-bg:#fdf0f0;
+  --blue:#2563eb;--blue-bg:#eff4ff;
+  --max-w:820px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',system-ui,sans-serif;color:var(--ink);background:var(--surf2);line-height:1.6;font-size:14px;-webkit-font-smoothing:antialiased}
+
+/* ── NAV ── */
+.topbar{position:sticky;top:0;z-index:100;background:var(--ink);color:#fff;border-bottom:1px solid rgba(255,255,255,.06)}
+.topbar-inner{max-width:var(--max-w);margin:0 auto;padding:12px 24px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-weight:700;font-size:15px;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
+.logo-mark{width:20px;height:20px;border:2px solid var(--accent);border-radius:50%;display:inline-flex;align-items:center;justify-content:center}
+.logo-mark::after{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%}
+.topbar-meta{font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.3px}
+
+.subnav{background:var(--surf);border-bottom:1px solid var(--surf4);position:sticky;top:49px;z-index:99}
+.subnav-inner{max-width:var(--max-w);margin:0 auto;padding:0 24px;display:flex;gap:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.subnav a{display:block;padding:10px 14px;font-size:11.5px;font-weight:600;color:var(--ink4);text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent;transition:all .15s}
+.subnav a:hover{color:var(--ink)}
+.subnav a.sec{color:var(--ink3);font-weight:500;font-size:11px}
+
+/* ── MAIN ── */
+main{max-width:var(--max-w);margin:0 auto;padding:32px 24px 80px}
+
+/* Section headers */
+.section-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+h1{font-size:28px;font-weight:700;line-height:1.25;margin-bottom:8px;color:var(--ink)}
+.lead{font-size:15px;color:var(--ink3);margin-bottom:32px;max-width:600px}
+
+h2{font-size:18px;font-weight:700;color:var(--ink);margin:48px 0 6px;padding-top:24px;border-top:2px solid var(--ink);letter-spacing:-.2px}
+h2:first-of-type{margin-top:0;border:none;padding:0}
+h2 .count{font-size:12px;font-weight:500;color:var(--ink4);margin-left:8px}
+
+h3{font-size:14px;font-weight:700;color:var(--ink2);margin:24px 0 8px}
+
+p{margin-bottom:10px;color:var(--ink2)}
+p:last-child{margin-bottom:0}
+
+/* ── CALLOUTS ── */
+.callout{padding:12px 14px;border-radius:6px;margin:16px 0;font-size:13px;line-height:1.5}
+.callout-label{font-weight:700;font-size:11px;letter-spacing:.3px;text-transform:uppercase;margin-bottom:4px;display:block}
+.callout-principle{background:var(--green-bg);border-left:3px solid var(--green);color:var(--ink2)}
+.callout-principle .callout-label{color:var(--green)}
+.callout-warn{background:var(--amber-bg);border-left:3px solid var(--amber);color:var(--ink2)}
+.callout-warn .callout-label{color:var(--amber)}
+.callout-info{background:var(--blue-bg);border-left:3px solid var(--blue);color:var(--ink2)}
+.callout-info .callout-label{color:var(--blue)}
+.callout-danger{background:var(--red-bg);border-left:3px solid var(--red);color:var(--ink2)}
+.callout-danger .callout-label{color:var(--red)}
+
+/* ── FLOW DIAGRAM ── */
+.flow{display:flex;align-items:stretch;gap:0;margin:20px 0 28px;border-radius:8px;overflow:hidden;border:1px solid var(--surf4)}
+.flow-step{flex:1;padding:14px 12px;background:var(--surf);position:relative;text-align:center;border-right:1px solid var(--surf4)}
+.flow-step:last-child{border-right:none}
+.flow-step.active{background:var(--accent);color:#fff}
+.flow-step.active .flow-num{background:rgba(255,255,255,.25);color:#fff}
+.flow-step.active .flow-desc{color:rgba(255,255,255,.7)}
+.flow-num{display:inline-block;width:22px;height:22px;border-radius:50%;background:var(--surf3);font-size:11px;font-weight:700;line-height:22px;margin-bottom:5px;color:var(--ink3)}
+.flow-title{font-size:11.5px;font-weight:700;display:block}
+.flow-desc{font-size:10px;color:var(--ink4);margin-top:2px}
+.flow-arrow{display:flex;align-items:center;font-size:16px;color:var(--surf4);padding:0 2px}
+
+/* ── DISCLOSURE CARD ── */
+.card{background:var(--surf);border:1px solid var(--surf4);border-radius:8px;margin:12px 0;overflow:hidden;transition:border-color .15s}
+.card:hover{border-color:var(--surf3)}
+.card-head{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--surf3)}
+.card-id{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;background:var(--ink);color:#fff;white-space:nowrap;letter-spacing:.3px;flex-shrink:0}
+.card-id.gate{background:var(--red)}
+.card-title{font-size:14px;font-weight:700;color:var(--ink)}
+.card-phase{margin-left:auto;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;white-space:nowrap;flex-shrink:0}
+.card-phase.pre{background:var(--purple-bg);color:var(--purple)}
+.card-phase.post{background:var(--blue-bg);color:var(--blue)}
+
+.card-body{padding:14px 16px}
+
+/* Meta row */
+.meta-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+.meta-item{background:var(--surf2);border-radius:4px;padding:6px 8px}
+.meta-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink4);margin-bottom:1px}
+.meta-val{font-size:12px;font-weight:600;color:var(--ink2)}
+
+/* Disclosure text box */
+.disc-text{background:var(--surf2);border-left:3px solid var(--ink3);padding:10px 12px;border-radius:0 4px 4px 0;font-size:12.5px;line-height:1.55;color:var(--ink2);margin:10px 0}
+.disc-text.scroll{max-height:120px;overflow-y:auto;border-left-color:var(--accent)}
+.disc-text.scroll::-webkit-scrollbar{width:4px}
+.disc-text.scroll::-webkit-scrollbar-thumb{background:var(--surf4);border-radius:2px}
+.disc-text em{font-style:normal;color:var(--accent);font-weight:600}
+
+/* Regulatory note */
+.reg-note{display:flex;gap:6px;align-items:flex-start;margin-top:10px;padding-top:10px;border-top:1px solid var(--surf3);font-size:11.5px;color:var(--ink3)}
+.reg-note strong{color:var(--ink2);font-weight:600;white-space:nowrap}
+
+/* Cross-ref */
+.xref{font-size:11px;color:var(--ink4);margin-top:8px;font-family:'JetBrains Mono',monospace}
+
+/* Tip */
+.tip{background:var(--purple-bg);padding:8px 10px;border-radius:4px;font-size:12px;color:var(--purple);margin:8px 0;line-height:1.4}
+
+/* ── TABLES ── */
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin:12px 0}
+thead th{background:var(--ink);color:#fff;padding:8px 10px;text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.4px}
+thead th:first-child{border-radius:4px 0 0 0}
+thead th:last-child{border-radius:0 4px 0 0}
+tbody td{padding:8px 10px;border-bottom:1px solid var(--surf3);color:var(--ink2);vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:nth-child(even){background:var(--surf2)}
+
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;padding:1px 6px;font-size:10px;font-weight:600;border-radius:3px;letter-spacing:.2px}
+.badge-gate{background:var(--red);color:#fff}
+.badge-info{background:var(--surf3);color:var(--ink3)}
+.badge-state{background:var(--amber-bg);color:var(--amber)}
+
+/* ── STATE GRID ── */
+.state-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.state-card{background:var(--surf);border:1px solid var(--surf4);border-radius:6px;padding:12px 14px}
+.state-card h4{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.state-card h4 .badge{font-size:9px}
+.state-card p{font-size:11.5px;color:var(--ink3);margin:0}
+
+/* ── SCREEN MAP ── */
+.screen{background:var(--surf);border:1px solid var(--surf4);border-radius:8px;padding:16px;margin:12px 0}
+.screen-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.screen-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.screen-items{display:flex;flex-direction:column;gap:4px}
+.screen-item{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:4px;font-size:12px}
+.screen-item:nth-child(even){background:var(--surf2)}
+.screen-item .si-id{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:var(--ink4);min-width:52px}
+.screen-item .si-name{flex:1;font-weight:500;color:var(--ink2)}
+.screen-item .si-ui{font-size:11px;color:var(--ink4);font-weight:500;text-align:right;min-width:80px}
+
+/* ── FOOTER ── */
+.foot{text-align:center;padding:32px 0 0;margin-top:48px;border-top:2px solid var(--ink);font-size:11px;color:var(--ink4)}
+.foot strong{color:var(--ink2)}
+
+/* ── PRINT ── */
+@media print{
+  .topbar,.subnav{position:relative}
+  main{padding:16px}
+  .card{break-inside:avoid}
+  body{background:#fff;font-size:11px}
+}
+@media(max-width:640px){
+  .meta-row{grid-template-columns:1fr 1fr}
+  .state-grid{grid-template-columns:1fr}
+  .flow{flex-direction:column}
+  .flow-arrow{transform:rotate(90deg);padding:4px 0;justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="logo"><span class="logo-mark"></span>Ottri</div>
+    <div class="topbar-meta">Disclosure & Consent Guide · v5.0 · Feb 2026 · Confidential</div>
+  </div>
+</div>
+
+<div class="subnav">
+  <div class="subnav-inner">
+    <a href="#overview">Overview</a>
+    <a href="#pre-sub">Pre-Submission</a>
+    <a href="#ecbsv" style="color:var(--red)">eCBSV ⚠️</a>
+    <a href="#consent-gate">Consent Gate</a>
+    <a href="#post-sub">Post-Submission</a>
+    <a href="#states">State Reqs</a>
+    <a href="#screens">Screen Map</a>
+    <a href="#tech">Tech Reqs</a>
+    <a href="#open">Open Items</a>
+  </div>
+</div>
+
+<main>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- OVERVIEW -->
+<!-- ═══════════════════════════════════════ -->
+<section id="overview">
+<span class="section-label">Overview</span>
+<h1>Disclosure & Consent<br>Implementation Guide</h1>
+<p class="lead">What to show consumers, when, in what format, and why — across Ottri's multi-lender unsecured installment loan flow.</p>
+
+<div class="callout callout-principle">
+  <span class="callout-label">Core Principle</span>
+  Pre-submission: everything is in <strong>Ottri's voice</strong>. Use "Ottri and its lending partners" — never name a specific lender. Post-submission: lender-attributed, lender-specific.
+</div>
+
+<h3>Application Flow</h3>
+<div class="flow">
+  <div class="flow-step">
+    <span class="flow-num">1</span>
+    <span class="flow-title">PII Collection</span>
+    <span class="flow-desc">Name, email, phone, address, income</span>
+  </div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-step">
+    <span class="flow-num">2</span>
+    <span class="flow-title">Consent & Submit</span>
+    <span class="flow-desc">Unified consent → Ottri soft pull</span>
+  </div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-step active">
+    <span class="flow-num">3</span>
+    <span class="flow-title">Routing</span>
+    <span class="flow-desc">Waterfall → lender soft pull</span>
+  </div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-step">
+    <span class="flow-num">4</span>
+    <span class="flow-title">Offers</span>
+    <span class="flow-desc">Lender-attributed results</span>
+  </div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-step">
+    <span class="flow-num">5</span>
+    <span class="flow-title">Loan Docs</span>
+    <span class="flow-desc">Iframe / email · hard pull</span>
+  </div>
+</div>
+
+<div class="callout callout-info">
+  <span class="callout-label">Ottri's Role</span>
+  Technology platform — not a lender, not a financial institution. Routes unsecured installment loans through a multi-lender waterfall. No mortgage products. Ottri performs a TransUnion soft pull via CRS before routing.
+</div>
+
+<h3>Summary</h3>
+<table>
+  <thead><tr><th>Phase</th><th>Voice</th><th>Disclosures</th><th>Consent Gates</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Pre-Submission</strong></td><td>Ottri (lender-agnostic)</td><td>9 items + 4 state-conditional</td><td>1 (OTR-09)</td></tr>
+    <tr><td><strong>Post-Submission</strong></td><td>Lender-specific</td><td>Varies by lender</td><td>Up to 4 per lender</td></tr>
+  </tbody>
+</table>
+
+<h3>Lenders Covered</h3>
+<table>
+  <thead><tr><th>Lender</th><th>Product</th><th>ID Prefix</th><th>Source Doc</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Sunlight Financial</strong></td><td>Home improvement loans</td><td>SL-</td><td>Sunlight API Disclosure Docs</td></tr>
+    <tr><td><strong>U.S. Bank (Avvance)</strong></td><td>Unsecured installment</td><td>USB-</td><td>Elavon/Avvance Agreement §5 + USB Req Doc</td></tr>
+  </tbody>
+</table>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- PRE-SUBMISSION DISCLOSURES -->
+<!-- ═══════════════════════════════════════ -->
+<h2 id="pre-sub">Pre-Submission Disclosures <span class="count">9 items</span></h2>
+<p>All shown before lender is known. Ottri's voice. Built once, satisfies both lenders.</p>
+
+<!-- OTR-01 -->
+<div class="card">
+  <div class="card-head">
+    <span class="card-id">OTR-01</span>
+    <span class="card-title">Privacy Policy</span>
+    <span class="card-phase pre">Pre-Sub</span>
+  </div>
+  <div class="card-body">
+    <div class="meta-row">
+      <div class="meta-item"><span class="meta-label">UI Treatment</span><span class="meta-val">Footer link</span></div>
+      <div class="meta-item"><span class="meta-label">User Action</span><span class="meta-val">None</span></div>
+      <div class="meta-item"><span class="meta-label">Placement</span><span class="meta-val">Every screen</span></div>
+      <div class="meta-item"><span class="meta-label">Satisfies</span><span class="meta-val">SL-02 · GLBA</span></div>
+    </div>
+    <p>Link to Ottri's privacy policy in footer of every screen. Must be available before collecting any PII. Consumer does not need to click — presence is sufficient.</p>
+    <p>Post-routing: swap to or add lender-specific privacy link (Sunlight provides English + Spanish PDF URLs).</p>
+    <div class="reg-note">
+      <strong>Regulation:</strong> GLBA §502(b) — privacy notice required when collecting NPI. Sunlight requires link text "Privacy Policy and Revocation of Consent."
+    </div>
+    <div class="xref">SL-02 · Sunlight "Privacy Policy" type</div>
+  </div>
+</div>
+
+<!-- OTR-02 -->
+<div class="card">
+  <div class="card-head">
+    <span class="card-id">OTR-02</span>
+    <span class="card-title">CCPA Notice</span>
+    <span class="card-phase pre">Pre-Sub</span>
+  </div>
+  <div class="card-body">
+    <div class="meta-row">
+      <div class="meta-item"><span class="meta-label">UI Treatment</span><span class="meta-val">Footer link</span></div>
+      <div class="meta-item"><span class="meta-label">User Action</span><span class="meta-val">None</span></div>
+      <div class="meta-item"><span class="meta-label">Placement</span><span class="meta-val">PII screen footer</span></div>
+      <div class="meta-item"><span class="meta-label">Satisfies</span><span class="meta-val">SL-01 · CCPA</span></div>
+    </div>
+    <p>Link to Ottri's CCPA notice at collection point. Display for all users (not just CA residents — simpler UX, no geo-detection needed).</p>
+    <p>Notice must cover: categories of PII collected, purposes, third-party sharing categories, and consumer rights under CCPA.</p>
+    <div class="reg-note">
+      <strong>Regulation:</strong> Cal. Civ. Code §1798.100 (CCPA/CPRA). Sunlight requires notice "wherever you collect Personal Information about California Residents."
+    </div>
+    <div class="xref">SL-01 · Sunlight "CCPALoan" type</div>
+  </div>
+</div>
+
+<!-- OTR-03 -->
+<div class="card">
+  <div class="card-head">
+    <span class="card-id">OTR-03</span>
+    <span class="card-title">Phone Consent (TCPA)</span>
+    <span class="card-phase pre">Pre-Sub</span>
+  </div>
+  <div class="card-body">
+    <div class="meta-row">
+      <div class="meta-item"><span class="meta-label">UI Treatment</span><span class="meta-val">On-screen text (†)</span></div>
+      <div class="meta-item"><span class="meta-label">User Action</span><span class="meta-val">None — implied by providing #</span></div>
+      <div class="meta-item"><span class="meta-label">Placement</span><span class="meta-val">Below phone input</span></div>
+      <div class="meta-item"><span class="meta-label">Satisfies</span><span class="meta-val">SL-03 · USB-05 · Elavon §5.c</span></div>
+    </div>
+    <div class="callout callout-danger" style="margin-top:0">
+      <span class="callout-label">Cannot be hidden</span>
+      Must be visible on-screen. Cannot be tooltip, modal, or collapsed. Use † or * on the phone field, full text below.
+    </div>
+    <div class="disc-text">
+      † By providing your phone number, you consent to <em>Ottri and its lending partners</em> contacting you at the number provided, including by automated means (autodialer, prerecorded/artificial voice, text message), even if your number is on a Do-Not-Call list. Consent is not a condition of purchase. Message and data rates may apply.
+    </div>
+    <div class="tip">Most legally sensitive pre-submission disclosure. Never hide or truncate. Covers both Sunlight's phone disclosure and US Bank's cellular phone contact policy in a single lender-agnostic statement.</div>
+    <div class="reg-note">
+      <strong>Regulation:</strong> TCPA 47 U.S.C. §227 + FCC 2024 one-to-one consent rule. Elavon §5.c requires "consent from Customer to contact the Customer at the wireless number provided."
+    </div>
+    <div class="xref">SL-03 "PhoneNumberHome" · USB-05 Cellular policy · Elavon §5.c bullet 2</div>
+  </div>
+</div>
+
+<!-- OTR-04 -->
+<div class="card">
+  <div class="card-head">
+    <span class="card-id">OTR-04</span>
+    <span class="card-title">Phone Usage Notice</span>
+    <span class="card-phase pre">Pre-Sub</span>
+  </div>
+  <div class="card-body">
+    <div class="meta-row">
+      <div class="meta-item"><span class="meta-label">UI Treatment</span><span class="meta-val">Tooltip (ℹ️ icon)</span></div>
+      <div class="meta-item"><span class="meta-label">User Action</span><span class="meta-val">None</span></div>
+      <div class="meta-item"><span class="meta-label">Placement</span><span class="meta-val">Phone field</span></div>
+      <div class="meta-item"><span class="meta-label">Satisfies</span><span class="meta-val">SL-04</span></div>
+    </div>
+    <div class="disc-text">Your mobile phone number will be used for account management purposes. If you do not have a mobile device, please enter any valid phone number.</div>
+    <div class="reg-note">
+      <strong>Source:</strong> Sunlight contractual requirement. Tooltip placement is compliant per Sunlight docs.
+    </div>
+    <div class="xref">SL-04 · Sunlight "PhoneNumberHome" tooltip</div>
+  </div>
+</div>
+
+<!-- OTR-05 -->
+<div class="card">
+  <div class="card-head">
+    <span class="card-id">OTR-05</span>
+    <span class="card-title">Income Disclosure</span>
+    <span class="card-phase pre">Pre-Sub</span>
+  </div>
+  <div class="card-body">
+    <div class="meta-row">
+      <div class="meta-item"><span class="meta-label">UI Treatment</span><span class="meta-val">On-screen below field</span></div>
+      <div class="meta-item"><span class="meta-label">User Action</span><span class="meta-val">None</span></div>
+      <div class="meta-item"><span class="meta-label">Placement</span><span class="meta-val">Below income input</span></div>
+      <div class="meta-item"><span class="meta-label">Satisfies</span><span class="meta-val">SL-05 · ECOA</span></div>
+    </div>
+    <div class="callout callout-warn" style="margin-top:0">
+      <span class="callout-label">Cannot be tooltip</span>
+      Field label <strong>must</strong> read "Total Gross Annual Income." Alimony/child support disclosure is regulatory (ECOA/Reg B).
+    </div>
+    <div class="disc-text">Alimony, child support, or separate maintenance income need not be revealed if you do not wish it to be considered as a basis for repaying this obligation.</div>
+    <div class="reg-note">
+      <strong>Regulation:</strong> ECOA / Reg B (12 CFR §1002.5(d)(2)). Sunlight requires this exact placement — below field, not tooltip.
+    </div>
+    <div class="xref">SL-05 · Sunlight "Income" type</div>
+  </div>
+</div>
+
+<!-- OTR-06 -->
+<div class="card">
+  <div class="card-head">
+    <span class="card-id">OTR-06</span>
+    <span class="card-title">Income Examples</span>
+    <span class="card-phase pre">Pre-Sub</span>
+  </div>
+  <div class="card-body">
+    <div class="meta-row">
+      <div class="meta-item"><span class="meta-label">UI Treatment</span><span class="meta-val">Tooltip (ℹ️ icon)</span></div>
+      <div class="meta-item"><span class="meta-label">User Action</span><span class="meta-val">None</span></div>
+      <div class="meta-item"><span class="meta-label">Placement</span><span class="meta-val">Income field</span></div>
+      <div class="meta-item"><span class="meta-label">Satisfies</span><span class="meta-val">SL-06 · CARD Act</span></div>
+    </div>
+    <div class="disc-text">Examples: Salary, wages, interest, dividends, rental income, retirement benefits. If you are 21 or older, you may include income from others that you can reasonably access to pay your bills.</div>
+    <div class="reg-note">
+      <strong>Regulation:</strong> CARD Act / Reg Z §1026.51(b) — "21 or older" threshold for household income. Sunlight calls this "Householding."
+    </div>
+    <div class="xref">SL-06 · Sunlight "Income" tooltip</div>
+  </div>
+</div>
+
+<!-- OTR-07 -->
+<div class="card">
+  <div class="card-head">
+    <span class="card-id">OTR-07</span>
+    <span class="card-title">AML / USA PATRIOT Act — Identity Verification Notice</span>
+    <span class="card-phase pre">Pre-Sub</span>
+  </div>
+  <div class="card-body">
+    <div class="meta-row">
+      <div class="meta-item"><span class="meta-label">UI Treatment</span><span class="meta-val">Static text block</span></div>
+      <div class="meta-item"><span class="meta-label">User Action</span><span class="meta-val">None (notice only)</span></div>
+      <div class="meta-item"><span class="meta-label">Placement</span><span class="meta-val">Directly above OTR-09</span></div>
+      <div class="meta-item"><span class="meta-label">Satisfies</span><span class="meta-val">USB-01</span></div>
+    </div>
+    <div class="disc-text">
+      <strong>Identity Verification Notice</strong><br><br>
+      To help the government fight the funding of terrorism and money laundering activities, federal law requires all financial institutions to obtain, verify, and record information that identifies each person who opens an account. When you apply, we will ask for your name, address, date of birth, and other information that will allow us to identify you.
+    </div>
+    <div class="callout callout-principle" style="margin-bottom:0">
+      <span class="callout-label">Why this is not in the consent box</span>
+      AML/CIP is a <strong>mandatory federal notice</strong>, not a consent. The consumer has no choice — identity verification happens regardless. Merging it into OTR-09 would imply they could decline, creating UDAAP risk. USB's own sample UX displays it as contextual text alongside (not inside) their consent block. Elavon §5.c does not list AML as a required consent. Keep it as 2–3 lines of static text directly above the OTR-09 scroll container — reads as context-setting before the consumer hits the consent gate.
+    </div>
+    <div class="reg-note">
+      <strong>Regulation:</strong> 31 USC §5318 (CIP/USA PATRIOT Act §326). US Bank requires this disclosure pre-approval. Not a consent — no checkbox or interaction required.
+    </div>
+    <div class="xref">USB-01 · US Bank AML disclosure</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- eCBSV ARCHITECTURE DECISION -->
+<!-- ═══════════════════════════════════════ -->
+<h2 id="ecbsv">OTR-08 — eCBSV Architecture Decision <span class="count">⚠️ Requires Elavon confirmation</span></h2>
+
+<div class="callout callout-danger">
+  <span class="callout-label">Critical Finding from API Analysis</span>
+  USB Avvance's <code>/pre-approval/application</code> endpoint runs eCBSV as a <strong>backend verification during decisioning</strong>. There is no separate eCBSV API call — USB uses the SSN, name, and DOB from the <code>consumer</code> object to verify against SSA records as part of generating offers. The <code>/book</code> endpoint accepts only a generic <code>"consent": "yes/no"</code> boolean.<br><br>
+  <strong>Consequence:</strong> eCBSV consent must be collected <em>before</em> Ottri calls USB's application endpoint. Post-offer placement is not viable — offers don't exist until after eCBSV check completes. Two options remain. Ask Elavon which is acceptable.
+</div>
+
+<!-- OPTION A -->
+<div class="card" style="border:2px solid var(--green)">
+  <div class="card-head" style="background:var(--green-bg)">
+    <span class="card-id" style="background:var(--green)">OPTION A</span>
+    <span class="card-title">Generic eCBSV in OTR-09 (Pre-Submission)</span>
+    <span class="card-phase pre">Pre-Sub</span>
+  </div>
+  <div class="card-body">
+    <div class="meta-row">
+      <div class="meta-item"><span class="meta-label">UI Treatment</span><span class="meta-val">Item inside OTR-09 scroll</span></div>
+      <div class="meta-item"><span class="meta-label">User Action</span><span class="meta-val">Via OTR-09 gate</span></div>
+      <div class="meta-item"><span class="meta-label">Placement</span><span class="meta-val">OTR-09 item (2)</span></div>
+      <div class="meta-item"><span class="meta-label">Conversion Impact</span><span class="meta-val">None — no extra step</span></div>
+    </div>
+
+    <h3>How it works</h3>
+    <p>eCBSV consent is collected as item (2) inside the unified OTR-09 consent, using lender-agnostic language. When the waterfall routes to USB, consent is already obtained. When it routes to a non-USB lender, consent was collected but never exercised (no harm — similar to collecting credit consent for all lenders pre-submission).</p>
+
+    <div class="disc-text" style="border-left-color:var(--green)">
+      <strong>(2) SSN Verification.</strong> I authorize the Social Security Administration (SSA) to verify and disclose to the applicable lending institution, through its designated service provider, whether my name, Social Security Number (SSN), and date of birth match information in SSA records. This authorization is for a one-time validation within 90 days of submission.
+    </div>
+
+    <h3>Pros</h3>
+    <p>Zero conversion impact — no additional screen or step. Single consent gate. Simpler architecture (no mid-waterfall interstitial). OTR-09 becomes a 7-item consent that covers all Elavon §5.c requirements in one block.</p>
+
+    <h3>Cons / Risk</h3>
+    <p>SSA's eCBSV program may require the consent to name the specific requesting institution. USB's required text says "U.S. Bank through Early Warning Services, LLC" — the generic "applicable lending institution" may not satisfy SSA program requirements. However: Elavon §5.c bullet 3 itself uses generic language ("authorization from Customer to the social security administration to verify…") without naming USB, suggesting Elavon may accept this framing.</p>
+
+    <div class="callout callout-warn" style="margin-bottom:0">
+      <span class="callout-label">Question for Elavon</span>
+      Does "the applicable lending institution and its designated service provider" satisfy eCBSV consent requirements for the SSA program? Or must the consent specifically name "U.S. Bank through Early Warning Services, LLC"?
+    </div>
+
+    <h3>OTR-09 under Option A (7 items)</h3>
+    <div class="disc-text scroll" style="border-left-color:var(--green)">
+      <strong>Authorization and Consent</strong><br>
+      By scrolling through and agreeing to the terms below, I acknowledge and consent to the following:<br><br>
+      <strong>(1) Privacy.</strong> I have reviewed and agree to Ottri's Privacy Policy and acknowledge that my personal information will be collected, used, and shared as described therein. I understand that once matched with a lending partner, that partner's privacy policy will also apply and will be made available to me.<br><br>
+      <strong>(2) SSN Verification.</strong> I authorize the Social Security Administration (SSA) to verify and disclose to the applicable lending institution, through its designated service provider, whether my name, Social Security Number (SSN), and date of birth match information in SSA records. This authorization is for a one-time validation within 90 days of submission.<br><br>
+      <strong>(3) Credit Inquiry.</strong> I authorize Ottri and its lending partners to obtain one or more consumer credit reports from one or more consumer reporting agencies using the personal information I have provided. I understand that this initial inquiry will be a soft inquiry and <em>will not impact my credit score</em>. If I choose to proceed with a loan offer, a hard credit inquiry may be required by the lending partner, which may affect my credit score. I will be notified before any hard inquiry is made.<br><br>
+      <strong>(4) Data Sharing.</strong> I agree that my contact information and the disposition of this application may be shared with the referring merchant and its service providers.<br><br>
+      <strong>(5) Electronic Communications.</strong> I agree to receive all documents, disclosures, and notices related to this application electronically, which requires a valid email address and internet access. I may withdraw my consent to electronic communications or request paper copies at any time by contacting Ottri at support@ottri.com or, once matched, my assigned lending partner. Withdrawing consent may delay processing of my application.<br><br>
+      <strong>(6) Display of Loan Information.</strong> If approved, I understand that my credit score and account information may be displayed within the merchant's platform for the purpose of reviewing loan terms and completing my transaction.<br><br>
+      <strong>(7) Accuracy and Electronic Signature.</strong> The information I have entered is complete and accurate to the best of my knowledge. I agree that my electronic signature has the same legal effect, validity, and enforceability as my handwritten signature.
+    </div>
+
+    <h3>Flow Diagram — Option A</h3>
+    <div class="flow">
+      <div class="flow-step"><span class="flow-num">1</span><span class="flow-title">PII Collection</span><span class="flow-desc">OTR-01–06</span></div>
+      <div class="flow-step active"><span class="flow-num">2</span><span class="flow-title">OTR-09 (7 items)</span><span class="flow-desc">Includes eCBSV</span></div>
+      <div class="flow-step"><span class="flow-num">3</span><span class="flow-title">Ottri Soft Pull</span><span class="flow-desc">TransUnion/CRS</span></div>
+      <div class="flow-step"><span class="flow-num">4</span><span class="flow-title">Waterfall</span><span class="flow-desc">USB /pre-approval</span></div>
+      <div class="flow-step"><span class="flow-num">5</span><span class="flow-title">Offers</span><span class="flow-desc">Consumer selects</span></div>
+      <div class="flow-step"><span class="flow-num">6</span><span class="flow-title">Agreement + Book</span><span class="flow-desc">Hard pull at signing</span></div>
+    </div>
+    <div class="reg-note">
+      <strong>Elavon §5.c alignment:</strong> All 7 bullets satisfied in one consent block (wireless carrier auth handled separately at OTR-03/post-routing).
+    </div>
+  </div>
+</div>
+
+<!-- OPTION B -->
+<div class="card" style="border:2px solid var(--purple)">
+  <div class="card-head" style="background:var(--purple-bg)">
+    <span class="card-id" style="background:var(--purple)">OPTION B</span>
+    <span class="card-title">Lender-Specific eCBSV Interstitial (Mid-Waterfall)</span>
+    <span class="card-phase" style="background:#fce4ec;color:#b71c1c">Mid-Waterfall</span>
+  </div>
+  <div class="card-body">
+    <div class="meta-row">
+      <div class="meta-item"><span class="meta-label">UI Treatment</span><span class="meta-val">Interstitial screen</span></div>
+      <div class="meta-item"><span class="meta-label">User Action</span><span class="meta-val">Checkbox + continue</span></div>
+      <div class="meta-item"><span class="meta-label">Placement</span><span class="meta-val">After routing decision, before USB API call</span></div>
+      <div class="meta-item"><span class="meta-label">Conversion Impact</span><span class="meta-val">⚠️ Extra step — may reduce completion</span></div>
+    </div>
+
+    <h3>How it works</h3>
+    <p>Consumer submits OTR-09 (6 items, no eCBSV). Ottri runs soft pull. Decision engine determines USB is the target lender. <strong>Before</strong> calling USB's <code>/pre-approval/application</code> endpoint, Ottri presents a brief interstitial naming U.S. Bank specifically. Consumer agrees. Ottri calls USB. If USB declines and waterfall falls through to next lender, the consumer saw USB consent for nothing — but no compliance issue.</p>
+
+    <h3>Architecture requirement</h3>
+    <p>Ottri's waterfall must be able to <strong>predict USB routing before calling the USB API</strong>. This means the routing decision (based on credit score, loan amount, eligibility criteria from Elavon §4.2) must happen in Ottri's engine before the API call, not as part of it. If the waterfall is "fire and see what comes back," this option doesn't work.</p>
+
+    <div class="disc-text" style="border-left-color:var(--purple)">
+      <strong>Before we check your options with U.S. Bank</strong><br><br>
+      I authorize the Social Security Administration (SSA) to verify and disclose to U.S. Bank through Early Warning Services, LLC, their service provider, for the purpose of applying for a loan whether the name, Social Security Number (SSN) and date of birth I have submitted matches information in SSA records. My consent is for a one-time validation within the next 90 days.<br><br>
+      <em>☐ I agree to the above authorization</em>
+    </div>
+
+    <h3>Pros</h3>
+    <p>Perfect SSA compliance — names the exact institution as required. Consumers only see USB consent when actually being routed to USB. No consent collected for relationships that don't materialize. Cleanest from a regulatory purist perspective.</p>
+
+    <h3>Cons / Risk</h3>
+    <p>Adds a conversion-killing step mid-flow. Consumer has already submitted, is waiting for results, and now gets a consent screen they didn't expect. If USB declines and Ottri falls through to next lender, the consumer saw USB consent for nothing (confusing, though not a compliance issue). Requires Ottri's routing engine to make deterministic routing decisions before API calls. More complex engineering.</p>
+
+    <h3>OTR-09 under Option B (6 items)</h3>
+    <div class="disc-text scroll" style="border-left-color:var(--purple)">
+      <strong>Authorization and Consent</strong><br>
+      By scrolling through and agreeing to the terms below, I acknowledge and consent to the following:<br><br>
+      <strong>(1) Privacy.</strong> I have reviewed and agree to Ottri's Privacy Policy and acknowledge that my personal information will be collected, used, and shared as described therein. I understand that once matched with a lending partner, that partner's privacy policy will also apply and will be made available to me.<br><br>
+      <strong>(2) Credit Inquiry.</strong> I authorize Ottri and its lending partners to obtain one or more consumer credit reports from one or more consumer reporting agencies using the personal information I have provided. I understand that this initial inquiry will be a soft inquiry and <em>will not impact my credit score</em>. If I choose to proceed with a loan offer, a hard credit inquiry may be required by the lending partner, which may affect my credit score. I will be notified before any hard inquiry is made.<br><br>
+      <strong>(3) Data Sharing.</strong> I agree that my contact information and the disposition of this application may be shared with the referring merchant and its service providers.<br><br>
+      <strong>(4) Electronic Communications.</strong> I agree to receive all documents, disclosures, and notices related to this application electronically, which requires a valid email address and internet access. I may withdraw my consent to electronic communications or request paper copies at any time by contacting Ottri at support@ottri.com or, once matched, my assigned lending partner. Withdrawing consent may delay processing of my application.<br><br>
+      <strong>(5) Display of Loan Information.</strong> If approved, I understand that my credit score and account information may be displayed within the merchant's platform for the purpose of reviewing loan terms and completing my transaction.<br><br>
+      <strong>(6) Accuracy and Electronic Signature.</strong> The information I have entered is complete and accurate to the best of my knowledge. I agree that my electronic signature has the same legal effect, validity, and enforceability as my handwritten signature.
+    </div>
+
+    <h3>Flow Diagram — Option B</h3>
+    <div class="flow">
+      <div class="flow-step"><span class="flow-num">1</span><span class="flow-title">PII Collection</span><span class="flow-desc">OTR-01–06</span></div>
+      <div class="flow-step"><span class="flow-num">2</span><span class="flow-title">OTR-09 (6 items)</span><span class="flow-desc">No eCBSV</span></div>
+      <div class="flow-step"><span class="flow-num">3</span><span class="flow-title">Ottri Soft Pull</span><span class="flow-desc">TransUnion/CRS</span></div>
+      <div class="flow-step active"><span class="flow-num">4</span><span class="flow-title">eCBSV Interstitial</span><span class="flow-desc">Names U.S. Bank</span></div>
+      <div class="flow-step"><span class="flow-num">5</span><span class="flow-title">USB /pre-approval</span><span class="flow-desc">→ Offers</span></div>
+      <div class="flow-step"><span class="flow-num">6</span><span class="flow-title">Agreement + Book</span><span class="flow-desc">Hard pull at signing</span></div>
+    </div>
+
+    <h3>UX Note for Option B Interstitial</h3>
+    <p>Keep it tight: one sentence of context ("Before we check your options with U.S. Bank"), the SSA authorization text, a single checkbox, and a "Continue" button. Show a loading/progress indicator behind it so the consumer knows things are moving. If the consumer declines, skip USB in the waterfall and proceed to next lender.</p>
+
+    <div class="reg-note">
+      <strong>Elavon §5.c alignment:</strong> 6 of 7 bullets in OTR-09. Bullet 3 (SSA authorization) collected here. Wireless carrier auth handled separately.
+    </div>
+  </div>
+</div>
+
+<!-- RECOMMENDATION -->
+<div class="callout callout-principle">
+  <span class="callout-label">Recommendation</span>
+  <strong>Start with Option A.</strong> It's simpler, zero conversion impact, and Elavon's own §5.c uses generic language for the SSA requirement (doesn't name USB). Ask Elavon one question: "Does 'the applicable lending institution and its designated service provider' satisfy eCBSV program requirements?" If yes → ship Option A. If no → fall back to Option B. Either way, the OTR-09 consent text is identical except for the presence/absence of item (2).
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- CONSENT GATE -->
+<!-- ═══════════════════════════════════════ -->
+<h2 id="consent-gate">Consent Gate <span class="count">1 gate + 1 notice</span></h2>
+<p>The single pre-submission gate. OTR-07 (identity verification notice) sits as static text directly above the OTR-09 scroll container. Together they read as one visual block — but legally they are distinct: a notice then a consent. The consent text below shows <strong>Option B (6 items)</strong>. If Option A is selected, insert SSN Verification as item (2) and renumber — see the <a href="#ecbsv">eCBSV Architecture Decision</a> section above for both versions.</p>
+
+<!-- OTR-09 -->
+<div class="card" style="border:2px solid var(--accent)">
+  <div class="card-head" style="background:var(--red-bg)">
+    <span class="card-id gate">OTR-09 🔒</span>
+    <span class="card-title">Unified Pre-Submission Consent (v3)</span>
+    <span class="card-phase pre">Pre-Sub · GATE</span>
+  </div>
+  <div class="card-body">
+    <div class="meta-row">
+      <div class="meta-item"><span class="meta-label">UI Treatment</span><span class="meta-val">Scrollable + checkbox</span></div>
+      <div class="meta-item"><span class="meta-label">User Action</span><span class="meta-val">Must scroll → must check</span></div>
+      <div class="meta-item"><span class="meta-label">Placement</span><span class="meta-val">Above Submit button</span></div>
+      <div class="meta-item"><span class="meta-label">Satisfies</span><span class="meta-val">USB-03 · Elavon §5.c (6 or 7 of 7)</span></div>
+    </div>
+
+    <div class="callout callout-info" style="margin-top:0">
+      <span class="callout-label">V3 — Depends on eCBSV Decision</span>
+      <strong>Option A:</strong> This consent has 7 items (includes SSN Verification as item 2). Satisfies all Elavon §5.c bullets in one block.<br>
+      <strong>Option B:</strong> This consent has 6 items (eCBSV collected separately mid-waterfall). Satisfies 6 of 7 Elavon §5.c bullets.<br>
+      Both versions share identical text for all non-eCBSV items. See <a href="#ecbsv">eCBSV Architecture Decision</a> for full text of each.
+    </div>
+
+    <div class="disc-text scroll">
+      <strong>Authorization and Consent</strong><br>
+      By scrolling through and agreeing to the terms below, I acknowledge and consent to the following:<br><br>
+      <strong>(1) Privacy.</strong> I have reviewed and agree to Ottri's Privacy Policy and acknowledge that my personal information will be collected, used, and shared as described therein. I understand that once matched with a lending partner, that partner's privacy policy will also apply and will be made available to me.<br><br>
+      <strong>(2) Credit Inquiry.</strong> I authorize Ottri and its lending partners to obtain one or more consumer credit reports from one or more consumer reporting agencies using the personal information I have provided. I understand that this initial inquiry will be a soft inquiry and <em>will not impact my credit score</em>. If I choose to proceed with a loan offer, a hard credit inquiry may be required by the lending partner, which may affect my credit score. I will be notified before any hard inquiry is made.<br><br>
+      <strong>(3) Data Sharing.</strong> I agree that my contact information and the disposition of this application may be shared with the referring merchant and its service providers.<br><br>
+      <strong>(4) Electronic Communications.</strong> I agree to receive all documents, disclosures, and notices related to this application electronically, which requires a valid email address and internet access. I may withdraw my consent to electronic communications or request paper copies at any time by contacting Ottri at <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4333312a3522203a032c3737312a6d202c2e">[email&#160;protected]</a> or, once matched, my assigned lending partner. Withdrawing consent may delay processing of my application.<br><br>
+      <strong>(5) Display of Loan Information.</strong> If approved, I understand that my credit score and account information may be displayed within the merchant's platform for the purpose of reviewing loan terms and completing my transaction.<br><br>
+      <strong>(6) Accuracy and Electronic Signature.</strong> The information I have entered is complete and accurate to the best of my knowledge. I agree that my electronic signature has the same legal effect, validity, and enforceability as my handwritten signature.
+    </div>
+
+    <p style="margin-top:8px"><strong>Checkbox text:</strong> <code style="font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--surf2);padding:2px 6px;border-radius:3px">"I have read and agree to the above Authorization and Consent"</code></p>
+    <p><strong>Button text:</strong> <code style="font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--surf2);padding:2px 6px;border-radius:3px">"Agree and Continue"</code></p>
+
+    <h3 style="margin-top:14px">UI Specification — Consent Block</h3>
+    <table>
+      <thead><tr><th>Element</th><th>Spec</th></tr></thead>
+      <tbody>
+        <tr><td>OTR-07 notice</td><td>Static text block, bold header "Identity Verification Notice", 2–3 lines body. No interaction. Sits directly above scroll container with 8–12px gap. Same width as scroll container.</td></tr>
+        <tr><td>Scroll container</td><td>110–130px height. Scrollbar always visible. Must reach bottom to enable checkbox.</td></tr>
+        <tr><td>Checkbox</td><td>Outside scroll container. Disabled until scroll complete. Label: "I have read and agree to the above Authorization and Consent"</td></tr>
+        <tr><td>Submit button</td><td>Label: "Agree and Continue". Disabled (grayed) until checkbox checked. Opacity + color transition on enable.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="tip">Item (1) satisfies GLBA §502(b) within the consent itself. Item (2) distinguishes soft vs. hard pull — critical for FCRA and consumer trust. Item (4) satisfies E-SIGN Act §101(c)(1)(B) withdrawal requirement with a concrete path (<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f181839887909288b19e85858398df929e9c">[email&#160;protected]</a>) available before lender assignment. Item (5) covers USB Informed Consent bullet 4 (FICO + account number display in partner environment).</div>
+
+    <div class="callout callout-info">
+      <span class="callout-label">What's NOT in this consent (by design)</span>
+      SSA/eCBSV authorization → <strong>Option A:</strong> included as item (2). <strong>Option B:</strong> collected separately mid-waterfall. See <a href="#ecbsv">eCBSV section</a>.<br>
+      Sunlight joint credit consent (SL-07) → post-submission, Sunlight-specific API call.<br>
+      Sunlight main credit disclosure (SL-08) → post-submission, Sunlight-specific API call.<br>
+      TCPA/phone consent → handled by OTR-03 (separate, on PII collection screen).<br>
+      Wireless carrier authorization → Elavon §5.c bullet 1, handled post-routing with lender-specific language.
+    </div>
+
+    <div class="reg-note">
+      <strong>Regulation:</strong> FCRA §604(a)(3) (permissible purpose); E-SIGN Act 15 U.S.C. §7001(c); GLBA §502(b); ECOA Reg B. Elavon §5.c covers 6 bullets minimum; if Option A selected, covers all 7 (remaining = wireless carrier auth, post-routing).
+    </div>
+    <div class="xref">USB-03 (Informed Consent items 1–5) · Elavon §5.c (bullets 2–7 depending on option)</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- STATE-SPECIFIC -->
+<!-- ═══════════════════════════════════════ -->
+<h2 id="states">State-Specific Disclosures <span class="count">4 states</span></h2>
+<p>Conditional — render only when applicant's state matches. All are US Bank requirements from the Consumer Application Disclosure section.</p>
+
+<div class="state-grid">
+  <div class="state-card">
+    <h4><span class="badge badge-state">OTR-11</span> California</h4>
+    <p>Married applicants may apply for a separate account. <strong>Source:</strong> Cal. Civ. Code §1812.30(j).</p>
+  </div>
+  <div class="state-card">
+    <h4><span class="badge badge-state">OTR-12</span> New York</h4>
+    <p>A consumer report may be requested. Upon request, you will be informed whether a report was requested and the agency name/address. <strong>Source:</strong> N.Y. Gen. Bus. Law §380-c(b) (NYFCRA).</p>
+  </div>
+  <div class="state-card">
+    <h4><span class="badge badge-state">OTR-13</span> Ohio</h4>
+    <p>"The Ohio laws against discrimination require that all creditors make credit equally available to all credit worthy customers..." <strong>Source:</strong> Ohio Rev. Code §4112.02(g). Font size ≥ rest of application.</p>
+  </div>
+  <div class="state-card">
+    <h4><span class="badge badge-state">OTR-14/15</span> Wisconsin</h4>
+    <p>Marital property notice (all WI applicants). If married, spousal info fields required. <strong>Source:</strong> WI ST. §766.56(2)(b).</p>
+  </div>
+</div>
+
+<div class="callout callout-info">
+  <span class="callout-label">Implementation</span>
+  Detect state from address input. Inject state disclosure dynamically. For Ohio (OTR-13), use CSS to enforce font-size ≥ application body text. For Wisconsin (OTR-14/15), conditionally show spousal fields when married is selected.
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- POST-SUBMISSION -->
+<!-- ═══════════════════════════════════════ -->
+<h2 id="post-sub">Post-Submission — Lender-Specific</h2>
+<p>After routing. Lender is now known. These are delivered via lender API or iframe. Ottri's role: display them correctly.</p>
+
+<!-- ═══════ POST-SUB FLOW DIAGRAM ═══════ -->
+<h3>Post-Submission Flow — Where Payloads Display</h3>
+<p>This maps the exact sequence from routing through booking. Each step shows what the consumer sees, who provides the payload, and what Ottri renders.</p>
+
+<div class="screen">
+  <div class="screen-title"><span class="dot"></span>Step 1 — Routing Complete (Invisible to Consumer)</div>
+  <div class="screen-items">
+    <div class="screen-item"><span class="si-id">Engine</span><span class="si-name">Ottri routes app to lender based on waterfall logic (credit score, loan amount, merchant vertical)</span><span class="si-ui">No UI — backend</span></div>
+    <div class="screen-item"><span class="si-id">OTR-08</span><span class="si-name">eCBSV consent (USB only) — display lender-specific SSA authorization before lender processes</span><span class="si-ui">Inline consent · lender-named</span></div>
+  </div>
+</div>
+
+<div class="screen">
+  <div class="screen-title"><span class="dot"></span>Step 2 — Lender Soft Pull + Decision (Backend)</div>
+  <div class="screen-items">
+    <div class="screen-item"><span class="si-id">Lender</span><span class="si-name">Lender runs eCBSV (USB) + soft credit pull → returns decision payload to Ottri</span><span class="si-ui">Loading state shown to consumer</span></div>
+    <div class="screen-item"><span class="si-id">Payload</span><span class="si-name">Contains: status (approved/declined/pending), approved amount, product details, APR, monthly payments, loan terms</span><span class="si-ui">—</span></div>
+  </div>
+</div>
+
+<div class="screen">
+  <div class="screen-title"><span class="dot"></span>Step 3 — Offer Presentation (Consumer Sees This)</div>
+  <div class="screen-items">
+    <div class="screen-item"><span class="si-id">Offers</span><span class="si-name">Ottri renders approved loan offers from the payload. Multiple offers possible (different terms/rates). Consumer reviews and selects one.</span><span class="si-ui">Offer cards · radio select</span></div>
+    <div class="screen-item"><span class="si-id">USB-04</span><span class="si-name">Pre-approval validity: "Valid for 15 days, single transaction" (USB only)</span><span class="si-ui">Info text below offers</span></div>
+    <div class="screen-item"><span class="si-id">SL-11</span><span class="si-name">Decision display: status, approved amount, product name, monthly payments per Sunlight spec (Sunlight only)</span><span class="si-ui">Decision card</span></div>
+    <div class="screen-item"><span class="si-id">SL-12</span><span class="si-name">Dropped applicant text — conditional, only if droppedApplicantName present (Sunlight only)</span><span class="si-ui">Alert text</span></div>
+  </div>
+</div>
+
+<div class="callout callout-info">
+  <span class="callout-label">Key Decision Point</span>
+  At Step 3, the consumer has seen offers but has NOT signed anything. No hard pull has happened. The consumer can walk away here with zero credit impact. This is where the soft-to-hard pull transition begins — only if they select an offer and proceed.
+</div>
+
+<div class="screen">
+  <div class="screen-title"><span class="dot"></span>Step 4 — Offer Selected → Pre-Booking Disclosures</div>
+  <div class="screen-items">
+    <div class="screen-item"><span class="si-id">Gate</span><span class="si-name">Consumer selected an offer. Before booking, lender-specific disclosures must be presented and agreed to.</span><span class="si-ui">New screen or modal</span></div>
+    <div class="screen-item"><span class="si-id">USB-05</span><span class="si-name">Cellular phone contact policy (USB) — TCPA-style consent for USB communications</span><span class="si-ui">View + agree checkbox</span></div>
+    <div class="screen-item"><span class="si-id">USB-06</span><span class="si-name">Email marketing preferences (USB) — opt-out available via usbank.com</span><span class="si-ui">View + agree checkbox</span></div>
+    <div class="screen-item"><span class="si-id">SL-07</span><span class="si-name">Joint credit consent (Sunlight, co-applicant only) — must be checked to proceed</span><span class="si-ui">Checkbox · blocks submit</span></div>
+    <div class="screen-item"><span class="si-id">SL-08</span><span class="si-name">Main credit disclosure (Sunlight) — presented directly, not tooltip. "SubmitForCreditConsentHome" API type</span><span class="si-ui">Visible text above submit</span></div>
+    <div class="screen-item"><span class="si-id">SL-09</span><span class="si-name">Terms & Conditions (Sunlight) — may open in modal from SL-08 link</span><span class="si-ui">Modal link</span></div>
+    <div class="screen-item"><span class="si-id">SL-10</span><span class="si-name">E-Sign / eConsent (Sunlight) — "ESignSubmit" short text + "eConsent" full in modal</span><span class="si-ui">Modal link</span></div>
+  </div>
+</div>
+
+<div class="screen">
+  <div class="screen-title"><span class="dot"></span>Step 5 — Loan Agreement + Hard Pull Consent + Signing</div>
+  <div class="screen-items">
+    <div class="screen-item"><span class="si-id">USB-07</span><span class="si-name">Loan agreement (USB): Lender returns Base64 → Ottri renders as PDF in-app. Consumer reviews full loan terms. Includes hard pull consent: "I consent to U.S. Bank requesting my consumer credit report, which may affect my credit score." Consumer signs → loan booked → hard pull executed.</span><span class="si-ui">PDF render + "Sign Agreement" button</span></div>
+    <div class="screen-item"><span class="si-id">SL-equiv</span><span class="si-name">Loan docs (Sunlight): Delivered via iframe or Sunlight emails directly to consumer. Ottri may or may not render — depends on integration path.</span><span class="si-ui">Iframe or email redirect</span></div>
+  </div>
+</div>
+
+<div class="callout callout-danger">
+  <span class="callout-label">Hard Pull Happens HERE — Not Earlier</span>
+  Per Elavon Agreement §5.e: Ottri displays the loan agreement in USB-approved format, collects signing consent, and then the hard pull occurs at or around signing. The consumer has been explicitly told at OTR-09 item (2) that a hard pull may happen if they proceed, and again at USB-07 signing. Two-touch notification.
+</div>
+
+<div class="screen">
+  <div class="screen-title"><span class="dot"></span>Step 6 — Post-Decision (Decline / Adverse Action)</div>
+  <div class="screen-items">
+    <div class="screen-item"><span class="si-id">USB-08</span><span class="si-name">Adverse action (USB): US Bank delivers notice directly. If Ottri receives Base64, render as PDF. Ottri must NOT author or deliver adverse action text for USB apps.</span><span class="si-ui">PDF display or lender handles directly</span></div>
+    <div class="screen-item"><span class="si-id">SL-decline</span><span class="si-name">Decline (Sunlight): Display "status" as "Declined". If droppedApplicantName present, show SL-12 decline variant with 30-day written notice language.</span><span class="si-ui">Decision screen</span></div>
+    <div class="screen-item"><span class="si-id">USB-H1</span><span class="si-name">Decline screen (USB headless): Decision result where USB unable to approve. Per Section 2.1 H1.</span><span class="si-ui">Decision screen</span></div>
+    <div class="screen-item"><span class="si-id">USB-H6</span><span class="si-name">Credit freeze (USB): Unable to provide decision due to freeze on applicant's credit. Per Section 2.1 H6.</span><span class="si-ui">Info screen + guidance</span></div>
+  </div>
+</div>
+
+<div class="callout callout-warn">
+  <span class="callout-label">Elavon §5.e — Loan Agreement Display Rules</span>
+  After customer completes transaction (booking or declining), Ottri must promptly delete the displayed loan agreement and risk-based pricing notice from its computing environment. Ottri may not disclose loan agreement contents to the merchant or any party other than the customer.
+</div>
+
+<div class="callout callout-danger">
+  <span class="callout-label">Critical — Adverse Action (Elavon §5.f)</span>
+  Per Elavon Agreement §5(f): "Service Provider shall not deliver an adverse action to Customer related to loan applications submitted to U.S. Bank." US Bank handles all adverse action notices directly. Ottri only displays the PDF they provide. For Sunlight: adverse action timing and content comes from Sunlight's API response.
+</div>
+
+<!-- ═══════ LENDER-SPECIFIC TABLES ═══════ -->
+<h3>Sunlight Financial — Post-Submission Items</h3>
+<table>
+  <thead><tr><th>ID</th><th>Item</th><th>UI</th><th>Gate?</th><th>When</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><span class="badge badge-info">SL-07</span></td><td>Joint Credit / FCRA Consent</td><td>Checkbox</td><td><span class="badge badge-gate">Yes</span></td><td>Step 4</td><td>Co-applicant scenario. Disables submit if unchecked.</td></tr>
+    <tr><td><span class="badge badge-info">SL-08</span></td><td>Credit Consent</td><td>Above submit</td><td>—</td><td>Step 4</td><td>"SubmitForCreditConsentHome" API type. Cannot be tooltip.</td></tr>
+    <tr><td><span class="badge badge-info">SL-09</span></td><td>Terms & Conditions</td><td>Modal link</td><td>—</td><td>Step 4</td><td>"TermsAndConditions" API type. May open in separate modal.</td></tr>
+    <tr><td><span class="badge badge-info">SL-10</span></td><td>E-Sign / eConsent</td><td>Modal link</td><td>—</td><td>Step 4</td><td>"ESignSubmit" short text + "eConsent" full text in modal.</td></tr>
+    <tr><td><span class="badge badge-info">SL-11</span></td><td>Approval display</td><td>Decision screen</td><td>—</td><td>Step 3</td><td>Show status, approved amount, product name, monthly payments per spec.</td></tr>
+    <tr><td><span class="badge badge-info">SL-12</span></td><td>Dropped applicant</td><td>Decision screen</td><td>—</td><td>Step 3/6</td><td>Conditional: only if "droppedApplicantName" has value. Three variants.</td></tr>
+  </tbody>
+</table>
+
+<h3>U.S. Bank (Avvance) — Post-Submission Items</h3>
+<table>
+  <thead><tr><th>ID</th><th>Item</th><th>UI</th><th>Gate?</th><th>When</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><span class="badge badge-info">OTR-08</span></td><td>eCBSV / SSA consent</td><td>See <a href="#ecbsv">eCBSV section</a></td><td><span class="badge badge-gate">Yes</span></td><td>Option A: Step 1 · Option B: Step 2.5</td><td>Two options documented. Ask Elavon: generic vs specific naming.</td></tr>
+    <tr><td><span class="badge badge-info">USB-04</span></td><td>Pre-approval validity</td><td>Info text</td><td>—</td><td>Step 3</td><td>"Valid for 15 days, single transaction." Display with offers.</td></tr>
+    <tr><td><span class="badge badge-info">USB-05</span></td><td>Cellular phone policy</td><td>View + agree</td><td><span class="badge badge-gate">Yes</span></td><td>Step 4</td><td>Before account booking. May be partially satisfied by OTR-03 — needs counsel review.</td></tr>
+    <tr><td><span class="badge badge-info">USB-06</span></td><td>Email marketing prefs</td><td>View + agree</td><td><span class="badge badge-gate">Yes</span></td><td>Step 4</td><td>Before account booking. Opt-out via usbank.com Privacy section.</td></tr>
+    <tr><td><span class="badge badge-info">USB-07</span></td><td>Loan agreement</td><td>PDF + sign</td><td><span class="badge badge-gate">Yes</span></td><td>Step 5</td><td>Base64 → PDF. Includes hard pull consent. Must delete after booking/decline.</td></tr>
+    <tr><td><span class="badge badge-info">USB-08</span></td><td>Adverse action</td><td>PDF</td><td>—</td><td>Step 6</td><td>USB delivers — Ottri must NOT author adverse action (Elavon §5.f).</td></tr>
+    <tr><td><span class="badge badge-info">USB-H2</span></td><td>Counter-offer</td><td>Offer screen</td><td>—</td><td>Step 3</td><td>If enabled: USB may return counter loan amount. Cannot be used to redirect to another lender (Section 2.1 H2).</td></tr>
+  </tbody>
+</table>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SCREEN MAP -->
+<!-- ═══════════════════════════════════════ -->
+<h2 id="screens">Screen Map</h2>
+<p>Where each disclosure lives in the UI. Two pre-submission screens, then lender-specific post-routing.</p>
+
+<div class="screen">
+  <div class="screen-title"><span class="dot"></span>Screen 1 — PII Collection</div>
+  <div class="screen-items">
+    <div class="screen-item"><span class="si-id">OTR-01</span><span class="si-name">Privacy Policy</span><span class="si-ui">Footer link</span></div>
+    <div class="screen-item"><span class="si-id">OTR-02</span><span class="si-name">CCPA Notice</span><span class="si-ui">Footer link</span></div>
+    <div class="screen-item"><span class="si-id">OTR-03</span><span class="si-name">Phone Consent (TCPA)</span><span class="si-ui">Below phone · visible text</span></div>
+    <div class="screen-item"><span class="si-id">OTR-04</span><span class="si-name">Phone Usage Notice</span><span class="si-ui">Tooltip</span></div>
+    <div class="screen-item"><span class="si-id">OTR-05</span><span class="si-name">Income Disclosure</span><span class="si-ui">Below income · visible text</span></div>
+    <div class="screen-item"><span class="si-id">OTR-06</span><span class="si-name">Income Examples</span><span class="si-ui">Tooltip</span></div>
+    <div class="screen-item"><span class="si-id">OTR-11–15</span><span class="si-name">State-specific (conditional)</span><span class="si-ui">Conditional block</span></div>
+  </div>
+</div>
+
+<div class="screen">
+  <div class="screen-title"><span class="dot"></span>Screen 2 — Consent & Submit</div>
+  <div class="screen-items">
+    <div class="screen-item"><span class="si-id">OTR-01</span><span class="si-name">Privacy Policy</span><span class="si-ui">Footer link</span></div>
+    <div class="screen-item"><span class="si-id">OTR-07</span><span class="si-name">Identity Verification Notice</span><span class="si-ui">Static text (notice, not consent)</span></div>
+    <div class="screen-item" style="background:var(--red-bg)"><span class="si-id" style="color:var(--red);font-weight:700">OTR-09</span><span class="si-name" style="font-weight:700;color:var(--red)">Unified Consent</span><span class="si-ui" style="color:var(--red)">Scroll + checkbox = GATE</span></div>
+    <div class="screen-item"><span class="si-id">—</span><span class="si-name">Submit Button</span><span class="si-ui">Disabled until OTR-09 ✓</span></div>
+  </div>
+</div>
+
+<div class="screen">
+  <div class="screen-title"><span class="dot" style="background:var(--green)"></span>Screen 2.5 — eCBSV Interstitial (Option B only · USB routing)</div>
+  <div class="screen-items">
+    <div class="screen-item" style="background:var(--purple-bg)"><span class="si-id" style="color:var(--purple);font-weight:700">OTR-08</span><span class="si-name" style="font-weight:700;color:var(--purple)">SSA/eCBSV — names U.S. Bank (Option B only)</span><span class="si-ui" style="color:var(--purple)">Checkbox + Continue · shown after Ottri soft pull, before USB API call</span></div>
+    <div class="screen-item" style="background:var(--green-bg)"><span class="si-id" style="color:var(--green)">—</span><span class="si-name" style="color:var(--green)">Option A: eCBSV is inside OTR-09 on Screen 2 — skip this screen</span><span class="si-ui" style="color:var(--green)">N/A</span></div>
+  </div>
+</div>
+
+<div class="screen">
+  <div class="screen-title"><span class="dot" style="background:var(--blue)"></span>Screen 4 — Offer Presentation</div>
+  <div class="screen-items">
+    <div class="screen-item"><span class="si-id">Offers</span><span class="si-name">Approved loan offers (terms, APR, payments)</span><span class="si-ui">Offer cards · radio select</span></div>
+    <div class="screen-item"><span class="si-id">USB-04</span><span class="si-name">Pre-approval validity (USB)</span><span class="si-ui">Info text</span></div>
+    <div class="screen-item"><span class="si-id">SL-11</span><span class="si-name">Decision display (Sunlight)</span><span class="si-ui">Decision card</span></div>
+    <div class="screen-item"><span class="si-id">SL-12</span><span class="si-name">Dropped applicant (Sunlight, conditional)</span><span class="si-ui">Alert text</span></div>
+  </div>
+</div>
+
+<div class="screen">
+  <div class="screen-title"><span class="dot" style="background:var(--blue)"></span>Screen 5 — Pre-Booking Disclosures (after offer selection)</div>
+  <div class="screen-items">
+    <div class="screen-item"><span class="si-id">USB-05</span><span class="si-name">Cellular phone policy (USB)</span><span class="si-ui">View + agree</span></div>
+    <div class="screen-item"><span class="si-id">USB-06</span><span class="si-name">Email marketing prefs (USB)</span><span class="si-ui">View + agree</span></div>
+    <div class="screen-item"><span class="si-id">SL-07</span><span class="si-name">Joint credit consent (Sunlight, co-app only)</span><span class="si-ui">Checkbox gate</span></div>
+    <div class="screen-item"><span class="si-id">SL-08/09/10</span><span class="si-name">Credit consent + T&C + E-Sign (Sunlight)</span><span class="si-ui">Text + modals</span></div>
+  </div>
+</div>
+
+<div class="screen">
+  <div class="screen-title"><span class="dot" style="background:var(--red)"></span>Screen 6 — Loan Agreement + Signing (HARD PULL)</div>
+  <div class="screen-items">
+    <div class="screen-item" style="background:var(--red-bg)"><span class="si-id" style="color:var(--red);font-weight:700">USB-07</span><span class="si-name" style="font-weight:700;color:var(--red)">Loan agreement PDF + hard pull consent + "Sign Agreement"</span><span class="si-ui" style="color:var(--red)">PDF render · GATE</span></div>
+    <div class="screen-item"><span class="si-id">SL-equiv</span><span class="si-name">Sunlight loan docs (iframe or email)</span><span class="si-ui">Iframe / redirect</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- TECH REQUIREMENTS -->
+<!-- ═══════════════════════════════════════ -->
+<h2 id="tech">Technical Requirements — U.S. Bank</h2>
+<p>Headless integration requirements from USB Section 2.1. Each must be implemented for Avvance.</p>
+
+<table>
+  <thead><tr><th style="width:44px">ID</th><th style="width:120px">Scenario</th><th>Requirement</th></tr></thead>
+  <tbody>
+    <tr><td><strong>H1</strong></td><td>Decline</td><td>Must display decline decision to consumer. Cannot silently skip.</td></tr>
+    <tr><td><strong>H2</strong></td><td>Counter-offer</td><td>Must allow USB to present counter amount. <strong>Cannot use counter-offer data to redirect to another lender.</strong></td></tr>
+    <tr><td><strong>H3</strong></td><td>Re-submission</td><td>Any re-submission must require re-acknowledgment of all terms and agreements.</td></tr>
+    <tr><td><strong>H4</strong></td><td>Loan agreement</td><td>Convert Base64 to PDF. Display to customer before booking.</td></tr>
+    <tr><td><strong>H5</strong></td><td>Adverse action</td><td>Convert Base64 to PDF. Display for all statuses. USB delivers — Ottri displays only.</td></tr>
+    <tr><td><strong>H6</strong></td><td>Credit freeze</td><td>Detect freeze status. Display consumer-facing message explaining freeze blocks decision.</td></tr>
+    <tr><td><strong>H7</strong></td><td>WI spousal info</td><td>= OTR-14/15. Collect spousal info when WI + married. Required data field.</td></tr>
+    <tr><td><strong>H8</strong></td><td>Citizenship</td><td>Dropdown (not free text) for country of citizenship.</td></tr>
+    <tr><td><strong>H9</strong></td><td>ITIN</td><td>Cannot route ITIN applicants to US Bank. Must detect and skip USB in waterfall.</td></tr>
+  </tbody>
+</table>
+
+<div class="callout callout-warn">
+  <span class="callout-label">H2 — Counter-Offer Restriction</span>
+  This is a contractual constraint, not just technical. Per USB requirements: "Third party can not retrieve counter offer decision to use as input for redirecting loan opportunity to another lending partner." Your waterfall logic must not consume counter-offer data from USB.
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- OPEN ITEMS -->
+<!-- ═══════════════════════════════════════ -->
+<h2 id="open">Open Items</h2>
+
+<table>
+  <thead><tr><th style="width:30px">#</th><th>Item</th><th style="width:90px">Priority</th></tr></thead>
+  <tbody>
+    <tr style="background:#fff0f0"><td>1</td><td><strong>⚠️ eCBSV: Generic vs. specific naming.</strong> Ask Elavon: "Does 'the applicable lending institution and its designated service provider' satisfy eCBSV program requirements, or must we name 'U.S. Bank through Early Warning Services, LLC'?" Answer determines Option A vs Option B. See <a href="#ecbsv">OTR-08 section</a>.</td><td>🔴 Blocker</td></tr>
+    <tr><td>2</td><td><strong>Legal review of merged OTR-09.</strong> Confirm single scroll+checkbox satisfies all 7 (Option A) or 6 (Option B) Elavon §5.c consent requirements. Fallback: SSN auth inline on SSN field, E-Sign as separate line.</td><td>🔴 Blocker</td></tr>
+    <tr><td>3</td><td><strong>Scroll-to-enable spec.</strong> Confirm forced-scroll pattern is sufficient for SSA authorization consent. Some regulators may require affirmative click per consent.</td><td>🔴 Blocker</td></tr>
+    <tr><td>4</td><td><strong>Normalized language sign-off.</strong> Both lenders must confirm Ottri's lender-agnostic wording satisfies their contractual requirements.</td><td>🔴 Blocker</td></tr>
+    <tr><td>5</td><td><strong>OTR-03 / USB-05 overlap.</strong> Pre-sub TCPA (OTR-03) may satisfy US Bank's post-sub cellular policy (USB-05). Confirm with USB to avoid double-consenting.</td><td>🟡 High</td></tr>
+    <tr><td>6</td><td><strong>Sunlight API integration.</strong> Confirm which disclosure types (SL-01/02/08/09/10) must be fetched via API vs. can use static text. API returns HTML — ensure renderer handles it.</td><td>🟡 High</td></tr>
+    <tr><td>7</td><td><strong>SOC 2 Type II.</strong> Required by Elavon §8.7. Timeline: 12–18 months. Budget: ~$20k+/yr.</td><td>🟠 Medium</td></tr>
+    <tr><td>8</td><td><strong>WCAG 2.1 AA certification.</strong> Required by Elavon §7 (Digital Accessibility Standard). Must deliver VPAT or accessibility attestation to Elavon.</td><td>🟠 Medium</td></tr>
+    <tr><td>9</td><td><strong>Post-routing UX pattern.</strong> Full screen? Modal? Inline expansion? Affects how lender-specific disclosures render.</td><td>🟠 Medium</td></tr>
+    <tr><td>10</td><td><strong>Routing transparency.</strong> Document waterfall logic for Elavon per §4.3 — they can request share data and decisioning logic.</td><td>🟠 Medium</td></tr>
+  </tbody>
+</table>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- FOOTER -->
+<!-- ═══════════════════════════�
