@@ -168,7 +168,7 @@ tbody tr:nth-child(even){background:var(--surf2)}
 <div class="topbar">
   <div class="topbar-inner">
     <div class="logo"><span class="logo-mark"></span>Ottri</div>
-    <div class="topbar-meta">Disclosure & Consent Guide · v5.0 · Feb 2026 · Confidential</div>
+    <div class="topbar-meta">Disclosure & Consent Guide · v5.1 · Feb 2026 · Confidential</div>
   </div>
 </div>
 
@@ -179,6 +179,7 @@ tbody tr:nth-child(even){background:var(--surf2)}
     <a href="#ecbsv" style="color:var(--red)">eCBSV ⚠️</a>
     <a href="#consent-gate">Consent Gate</a>
     <a href="#post-sub">Post-Submission</a>
+    <a href="#decisions">Decision Screens</a>
     <a href="#states">State Reqs</a>
     <a href="#screens">Screen Map</a>
     <a href="#tech">Tech Reqs</a>
@@ -490,7 +491,7 @@ tbody tr:nth-child(even){background:var(--surf2)}
       <strong>(2) SSN Verification.</strong> I authorize the Social Security Administration (SSA) to verify and disclose to the applicable lending institution, through its designated service provider, whether my name, Social Security Number (SSN), and date of birth match information in SSA records. This authorization is for a one-time validation within 90 days of submission.<br><br>
       <strong>(3) Credit Inquiry.</strong> I authorize Ottri and its lending partners to obtain one or more consumer credit reports from one or more consumer reporting agencies using the personal information I have provided. I understand that this initial inquiry will be a soft inquiry and <em>will not impact my credit score</em>. If I choose to proceed with a loan offer, a hard credit inquiry may be required by the lending partner, which may affect my credit score. I will be notified before any hard inquiry is made.<br><br>
       <strong>(4) Data Sharing.</strong> I agree that my contact information and the disposition of this application may be shared with the referring merchant and its service providers.<br><br>
-      <strong>(5) Electronic Communications.</strong> I agree to receive all documents, disclosures, and notices related to this application electronically, which requires a valid email address and internet access. I may withdraw my consent to electronic communications or request paper copies at any time by contacting Ottri at support@ottri.com or, once matched, my assigned lending partner. Withdrawing consent may delay processing of my application.<br><br>
+      <strong>(5) Electronic Communications.</strong> I agree to receive all documents, disclosures, and notices related to this application electronically, which requires a valid email address and internet access. I may withdraw my consent to electronic communications or request paper copies at any time by contacting Ottri at <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="fd8e888d8d928f89bd9289898f94d39e9290">[email&#160;protected]</a> or, once matched, my assigned lending partner. Withdrawing consent may delay processing of my application.<br><br>
       <strong>(6) Display of Loan Information.</strong> If approved, I understand that my credit score and account information may be displayed within the merchant's platform for the purpose of reviewing loan terms and completing my transaction.<br><br>
       <strong>(7) Accuracy and Electronic Signature.</strong> The information I have entered is complete and accurate to the best of my knowledge. I agree that my electronic signature has the same legal effect, validity, and enforceability as my handwritten signature.
     </div>
@@ -550,7 +551,7 @@ tbody tr:nth-child(even){background:var(--surf2)}
       <strong>(1) Privacy.</strong> I have reviewed and agree to Ottri's Privacy Policy and acknowledge that my personal information will be collected, used, and shared as described therein. I understand that once matched with a lending partner, that partner's privacy policy will also apply and will be made available to me.<br><br>
       <strong>(2) Credit Inquiry.</strong> I authorize Ottri and its lending partners to obtain one or more consumer credit reports from one or more consumer reporting agencies using the personal information I have provided. I understand that this initial inquiry will be a soft inquiry and <em>will not impact my credit score</em>. If I choose to proceed with a loan offer, a hard credit inquiry may be required by the lending partner, which may affect my credit score. I will be notified before any hard inquiry is made.<br><br>
       <strong>(3) Data Sharing.</strong> I agree that my contact information and the disposition of this application may be shared with the referring merchant and its service providers.<br><br>
-      <strong>(4) Electronic Communications.</strong> I agree to receive all documents, disclosures, and notices related to this application electronically, which requires a valid email address and internet access. I may withdraw my consent to electronic communications or request paper copies at any time by contacting Ottri at support@ottri.com or, once matched, my assigned lending partner. Withdrawing consent may delay processing of my application.<br><br>
+      <strong>(4) Electronic Communications.</strong> I agree to receive all documents, disclosures, and notices related to this application electronically, which requires a valid email address and internet access. I may withdraw my consent to electronic communications or request paper copies at any time by contacting Ottri at <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c0b3b5b0b0afb2b480afb4b4b2a9eea3afad">[email&#160;protected]</a> or, once matched, my assigned lending partner. Withdrawing consent may delay processing of my application.<br><br>
       <strong>(5) Display of Loan Information.</strong> If approved, I understand that my credit score and account information may be displayed within the merchant's platform for the purpose of reviewing loan terms and completing my transaction.<br><br>
       <strong>(6) Accuracy and Electronic Signature.</strong> The information I have entered is complete and accurate to the best of my knowledge. I agree that my electronic signature has the same legal effect, validity, and enforceability as my handwritten signature.
     </div>
@@ -797,6 +798,309 @@ tbody tr:nth-child(even){background:var(--surf2)}
 </table>
 
 <!-- ═══════════════════════════════════════ -->
+<!-- CREDIT DECISION SCREENS -->
+<!-- ═══════════════════════════════════════ -->
+<h2 id="decisions">Credit Decision Screens</h2>
+<p>After the waterfall returns a lender decision, Ottri must render decision screens with lender-specific elements. This section defines every required element, conditional logic path, and exact text template.</p>
+
+<!-- ─── SUNLIGHT DECISIONS ─── -->
+<h3 id="sl-decisions">Sunlight Financial — Decision Screen Requirements</h3>
+<p>Source: Sunlight API docs, "Credit Decision Screens - Overview." If using the synchronous credit method, all elements below are mandatory.</p>
+
+<div class="card">
+  <div class="card-inner">
+    <span class="card-title" style="color:var(--green)">✅ Approval — Required Elements (All Product Types)</span>
+    <div class="meta-grid">
+      <div class="meta-item"><span class="meta-label">Trigger</span><span class="meta-val"><code>"status": "Auto Approved"</code></span></div>
+      <div class="meta-item"><span class="meta-label">Display status as</span><span class="meta-val">"Approved" (not "Auto Approved")</span></div>
+    </div>
+    <p>For <strong>every</strong> approval, display these three fields:</p>
+    <div class="consent-text" style="font-size:13px">
+      <strong>1.</strong> Approved amount → <code>project.coThreshold</code><br>
+      <strong>2.</strong> Product name → <code>productName</code><br>
+      <strong>3.</strong> Loan amount → <code>loanAmount</code>
+    </div>
+
+    <h4 style="margin-top:16px">Product Types HIS and HIN (Deferred Interest Promo)</h4>
+    <p>These products have a promotional period followed by an escalated payment period. Display <strong>both</strong> payment phases:</p>
+    <div class="consent-text" style="font-size:13px">
+      <strong>Monthly Payment (during promotion):</strong> <code>quotes.monthlyPayment</code> for <code>quotes.paymentCountPromo</code> months<br>
+      <em>→ Use the quote where <code>"isSyncing": true</code></em><br><br>
+      <strong>Monthly Payment (after promotion):</strong> <code>quotes.escalatedMonthlyPayment</code> for <code>quotes.paymentCountStandard</code> months<br>
+      <em>→ Use the quote where <code>"isSyncing": true</code></em>
+    </div>
+    <div class="callout" style="margin-top:12px;background:#f0fdf4;border-left-color:var(--green)">
+      <span class="callout-label">Example (HIS/HIN)</span>
+      You have been <strong>APPROVED</strong> up to $20,000, 12 mo def interest promo (21.99%), then 48 mos 21.99%<br><br>
+      If your loan amount remains $15,000, the monthly payment will be as follows:<br>
+      Monthly Payment (during promotion) <strong>$150.00</strong> for <strong>12 months</strong><br>
+      Monthly Payment (after promotion) <strong>$503.29</strong> for <strong>48 months</strong>
+    </div>
+
+    <h4 style="margin-top:16px">Product Type HII (Fixed APR)</h4>
+    <p>Single payment amount for the full term. No promo/escalated split.</p>
+    <div class="consent-text" style="font-size:13px">
+      <strong>Monthly Payment:</strong> <code>monthlyPayment</code>
+    </div>
+    <div class="callout" style="margin-top:12px;background:#f0fdf4;border-left-color:var(--green)">
+      <span class="callout-label">Example (HII)</span>
+      You have been <strong>APPROVED</strong> up to $20,000, Fixed APR of 3.99% for 60 months<br><br>
+      If your loan amount remains $15,000, the monthly payment will be <strong>$276.18</strong>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-inner">
+    <span class="card-title" style="color:var(--red)">❌ Decline</span>
+    <div class="meta-grid">
+      <div class="meta-item"><span class="meta-label">Trigger</span><span class="meta-val"><code>"status": "Auto Decline"</code></span></div>
+      <div class="meta-item"><span class="meta-label">Display status as</span><span class="meta-val">"Declined"</span></div>
+    </div>
+    <p>Show decision. No additional elements required beyond the conditional dropped-applicant text below.</p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-inner">
+    <span class="card-title" style="color:#b45309">⏳ Pending Review</span>
+    <div class="meta-grid">
+      <div class="meta-item"><span class="meta-label">Trigger</span><span class="meta-val"><code>"status": "Pending Review"</code></span></div>
+      <div class="meta-item"><span class="meta-label">Display status as</span><span class="meta-val">"Pending"</span></div>
+    </div>
+    <p>Show decision. No additional elements required beyond the conditional dropped-applicant text below.</p>
+  </div>
+</div>
+
+<div class="card" style="border-left:4px solid var(--orange)">
+  <div class="card-inner">
+    <span class="card-title" style="color:var(--orange)">⚠️ SL-12 — Dropped Applicant (Conditional)</span>
+    <div class="meta-grid">
+      <div class="meta-item"><span class="meta-label">Trigger</span><span class="meta-val">Credit response has <code>"droppedApplicantName"</code> with a value</span></div>
+      <div class="meta-item"><span class="meta-label">When</span><span class="meta-val">Shown <strong>in addition to</strong> the required approval/decline/pending elements above</span></div>
+    </div>
+    <p>Three variants based on decision status. Variables: <code>{applicantFirstName}</code>, <code>{applicantLastName}</code>, <code>{droppedApplicantName}</code>.</p>
+
+    <h4 style="margin-top:12px;color:var(--green)">Variant 1: Approval + Dropped Applicant</h4>
+    <div class="consent-text" style="font-size:12.5px">
+      We received a joint credit application from {applicantFirstName} {applicantLastName} and {droppedApplicantName}. However, based on the creditworthiness of the applicants, the loan will be made only to {applicantFirstName} {applicantLastName}. Please note, Sunlight only completed a soft pull of credit for {droppedApplicantName}.
+    </div>
+    <details style="margin-top:6px"><summary style="font-size:12px;cursor:pointer;color:var(--ink4)">Spanish translation</summary>
+    <div class="consent-text" style="font-size:12px;margin-top:4px">
+      Recibimos una solicitud de crédito conjunto de {applicantFirstName} {applicantLastName} y {droppedApplicantName}. Sin embargo, sobre la base de la solvencia de los solicitantes, el préstamo se dará únicamente a {applicantFirstName} {applicantLastName}. Tenga en cuenta que Sunlight solo completó una consulta blanda de crédito para {droppedApplicantName}.
+    </div></details>
+
+    <h4 style="margin-top:16px;color:var(--red)">Variant 2: Decline + Dropped Applicant</h4>
+    <div class="consent-text" style="font-size:12.5px">
+      Unfortunately, we are unable to offer {applicantFirstName} {applicantLastName} or {droppedApplicantName} a loan at this time. We received a joint credit application from {applicantFirstName} {applicantLastName} and {droppedApplicantName}. However, the credit check was only completed on {applicantFirstName} {applicantLastName}. Please note, Sunlight only completed a soft pull of credit for {droppedApplicantName}. Within the next 30 days, we will provide the reason for the decline along with details of the credit report that was used in conjunction with your credit decision to {applicantFirstName} {applicantLastName}. This will be provided in writing and mailed to the address provided on your credit application.
+    </div>
+    <details style="margin-top:6px"><summary style="font-size:12px;cursor:pointer;color:var(--ink4)">Spanish translation</summary>
+    <div class="consent-text" style="font-size:12px;margin-top:4px">
+      Lamentablemente, no podemos darle a {applicantFirstName} {applicantLastName} ni a {droppedApplicantName} un préstamo en este momento. Recibimos una solicitud de crédito conjunto de {applicantFirstName} {applicantLastName} y {droppedApplicantName}. Sin embargo, solo se completó la verificación de crédito de {applicantFirstName} {applicantLastName}. Tenga en cuenta que Sunlight solo completó una consulta blanda de crédito para {droppedApplicantName}. En un plazo de 30 días, le diremos el motivo del rechazo y le daremos más información sobre el informe de crédito que usamos, y la decisión de su crédito a {applicantFirstName} {applicantLastName}. Enviaremos esto por escrito a la dirección que dio en su solicitud de crédito.
+    </div></details>
+
+    <h4 style="margin-top:16px;color:#b45309">Variant 3: Pending + Dropped Applicant</h4>
+    <div class="consent-text" style="font-size:12.5px">
+      Please note: We received a joint credit application from {applicantFirstName} {applicantLastName} and {droppedApplicantName}. However, based on the creditworthiness of the applicants, the loan would only be made to {applicantFirstName} {applicantLastName}, if resolved. Sunlight only completed a soft pull of credit for {droppedApplicantName}.
+    </div>
+    <details style="margin-top:6px"><summary style="font-size:12px;cursor:pointer;color:var(--ink4)">Spanish translation</summary>
+    <div class="consent-text" style="font-size:12px;margin-top:4px">
+      Tenga en cuenta: Recibimos una solicitud de crédito conjunto de {applicantFirstName} {applicantLastName} y {droppedApplicantName}. Sin embargo, sobre la base de la solvencia de los solicitantes, el préstamo se daría únicamente a {applicantFirstName} {applicantLastName}, si se resuelve. Sunlight solo completó una consulta blanda de crédito para {droppedApplicantName}.
+    </div></details>
+  </div>
+</div>
+
+<div class="callout callout-warn">
+  <span class="callout-label">Implementation Logic — Sunlight Decision Screens</span>
+  <code style="font-size:12px;display:block;margin-top:8px;white-space:pre;line-height:1.7;background:var(--surf);padding:12px;border-radius:6px">
+if (status === "Auto Approved") {
+  displayAs("Approved");
+  show(approvedAmount, productName, loanAmount);
+  if (productType === "HIS" || productType === "HIN") {
+    show(monthlyPaymentPromo, paymentCountPromo);      // from isSyncing=true quote
+    show(escalatedMonthlyPayment, paymentCountStandard); // from isSyncing=true quote
+  } else if (productType === "HII") {
+    show(monthlyPayment);
+  }
+} else if (status === "Auto Decline") {
+  displayAs("Declined");
+} else if (status === "Pending Review") {
+  displayAs("Pending");
+}
+
+// ALWAYS check for dropped applicant — applies to ALL statuses
+if (droppedApplicantName) {
+  if (status === "Auto Approved")   → show droppedApplicant_Approval_text;
+  if (status === "Auto Decline")    → show droppedApplicant_Decline_text;
+  if (status === "Pending Review")  → show droppedApplicant_Pending_text;
+}</code>
+</div>
+
+<!-- ─── USB DECISIONS ─── -->
+<h3 id="usb-decisions">U.S. Bank (Avvance) — Decision Screen Requirements</h3>
+<p>Source: USB Headless Requirements (Section 2.1), USB Disclosures (Section 1.1), Elavon Agreement §5. USB uses a different architecture than Sunlight — loan agreement comes as Base64 PDF, adverse action is USB-delivered, and counter-offers have contractual restrictions.</p>
+
+<div class="card">
+  <div class="card-inner">
+    <span class="card-title" style="color:var(--green)">✅ Approval — Offer Presentation</span>
+    <div class="meta-grid">
+      <div class="meta-item"><span class="meta-label">API</span><span class="meta-val"><code>/pre-approval/application</code> returns offers + <code>maxPreApprovedAmount</code></span></div>
+      <div class="meta-item"><span class="meta-label">Source</span><span class="meta-val">USB Section 1.1 §2</span></div>
+    </div>
+    <p>Display all loan offers returned by USB. Format must be approved by U.S. Bank (Elavon §5.d). Do <strong>not</strong> disclose offer terms (APR, term length) to the merchant — only to the consumer.</p>
+
+    <h4 style="margin-top:12px">Required Offer Disclosures</h4>
+    <div class="consent-text" style="font-size:12.5px">
+      <strong>USB-04:</strong> Your pre-approval is valid for &lt;15&gt; days and can be used to complete a single transaction with merchants offering Avvance. You may be subject to identity verification checks when completing your purchase. Use of this pre-approval in a purchase transaction is conditioned upon your entry into a loan agreement with U.S. Bank. The terms of the loan agreement are available for your review prior to your completion of a purchase transaction using this pre-approval.<br><br>
+      <strong>Loan availability note:</strong> All displayed loan options are available today. At least one of these options will be available if you make your purchase before your approval expires and the merchant is enrolled in the Avvance program at that time.
+    </div>
+    <div class="xref">Regulation: TILA §§ 128, 226.17–226.18 (offer terms disclosure). Elavon §5.d (display format must be USB-approved; cannot share offer terms with merchant).</div>
+  </div>
+</div>
+
+<div class="card" style="border-left:4px solid var(--blue)">
+  <div class="card-inner">
+    <span class="card-title" style="color:var(--blue)">↩️ USB-H2 — Counter-Offer</span>
+    <div class="meta-grid">
+      <div class="meta-item"><span class="meta-label">Trigger</span><span class="meta-val">USB returns approval for a <strong>lower amount</strong> than requested</span></div>
+      <div class="meta-item"><span class="meta-label">Source</span><span class="meta-val">Section 2.1 H2</span></div>
+      <div class="meta-item"><span class="meta-label">Gate?</span><span class="meta-val">No — consumer chooses to accept or decline</span></div>
+    </div>
+    <p>If enabled for Ottri, USB may return a counter loan amount. Ottri <strong>must</strong> present this to the consumer. Consumer can accept (proceeds to loan agreement) or decline.</p>
+    <div class="callout callout-danger" style="margin-top:8px">
+      <span class="callout-label">Contractual Restriction</span>
+      Ottri <strong>cannot</strong> use the counter-offer decision data as input for redirecting the loan opportunity to another lending partner. The waterfall must not consume counter-offer amounts from USB. Per Section 2.1 H2: "Third party can not retrieve counter offer decision to use as input for redirecting loan opportunity to another lending partner."
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-inner">
+    <span class="card-title" style="color:var(--red)">❌ USB-H1 — Decline</span>
+    <div class="meta-grid">
+      <div class="meta-item"><span class="meta-label">Trigger</span><span class="meta-val">USB unable to provide approval</span></div>
+      <div class="meta-item"><span class="meta-label">Source</span><span class="meta-val">Section 2.1 H1</span></div>
+    </div>
+    <p>Must display the decline decision to the consumer. <strong>Cannot silently skip or suppress.</strong> Even in a waterfall — if USB declines, the consumer must see that USB was unable to approve before Ottri routes to the next lender or shows a final decline.</p>
+    <div class="callout callout-warn" style="margin-top:8px">
+      <span class="callout-label">Waterfall UX Question</span>
+      In a multi-lender waterfall, how long should the USB decline be shown before the consumer is routed to the next lender? Options: (a) show briefly then auto-advance, (b) show with "Continue" button, (c) show only if USB is the final lender in the waterfall. <strong>Confirm with Elavon.</strong> The requirement says "display" — it doesn't specify duration or consumer interaction required.
+    </div>
+  </div>
+</div>
+
+<div class="card" style="border-left:4px solid #7c3aed">
+  <div class="card-inner">
+    <span class="card-title" style="color:#7c3aed">🧊 USB-H6 — Credit Freeze</span>
+    <div class="meta-grid">
+      <div class="meta-item"><span class="meta-label">Trigger</span><span class="meta-val">USB cannot decisioning due to freeze on applicant's credit report</span></div>
+      <div class="meta-item"><span class="meta-label">Source</span><span class="meta-val">Section 2.1 H6</span></div>
+    </div>
+    <p>Display a consumer-facing message explaining that a credit freeze is preventing the lender from making a decision. Consumer must be given guidance on how to temporarily lift the freeze (contact the credit bureau directly).</p>
+    <div class="consent-text" style="font-size:12.5px">
+      <strong>Recommended text:</strong> We were unable to process your application because a security freeze has been placed on your credit report. To proceed, you may temporarily lift the freeze by contacting the credit bureau(s) directly. Once lifted, you can resubmit your application.
+    </div>
+  </div>
+</div>
+
+<div class="card" style="border-left:4px solid var(--red)">
+  <div class="card-inner">
+    <span class="card-title" style="color:var(--red)">📄 USB-H5 / USB-08 — Adverse Action Notice</span>
+    <div class="meta-grid">
+      <div class="meta-item"><span class="meta-label">Trigger</span><span class="meta-val">All loan application statuses where configured (Section 2.1 H5)</span></div>
+      <div class="meta-item"><span class="meta-label">Format</span><span class="meta-val">Base64 → PDF. Render in viewer or download.</span></div>
+      <div class="meta-item"><span class="meta-label">Source</span><span class="meta-val">Section 2.1 H5, Elavon §5.f</span></div>
+    </div>
+    <p>If Ottri enables the configuration to receive an "applicant in review" status (Section 2.1, C5), Ottri must convert the Base64 payload to a PDF and display the U.S. Bank Adverse Action Communication for all loan application statuses.</p>
+    <div class="callout callout-danger" style="margin-top:8px">
+      <span class="callout-label">Critical — Ottri Must NOT Author Adverse Action</span>
+      Per Elavon Agreement §5(f): "Elavon shall ensure that U.S. Bank shall provide all legally required adverse action notices to a Customer related to applications submitted to U.S. Bank and Service Provider shall not deliver an adverse action to Customer related to loan applications submitted to U.S. Bank."<br><br>
+      Ottri's role is <strong>display only</strong>. Never write, modify, or supplement the adverse action text. Render the PDF exactly as received.
+    </div>
+    <div class="xref">Regulation: FCRA §615(a) (adverse action notice), ECOA Reg B §1002.9 (notice of action taken). USB handles compliance — Ottri renders.</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-inner">
+    <span class="card-title">📋 USB-H4 — Loan Agreement (Pre-Booking)</span>
+    <div class="meta-grid">
+      <div class="meta-item"><span class="meta-label">Trigger</span><span class="meta-val">Consumer selects an offer → call <code>/loan-agreement</code></span></div>
+      <div class="meta-item"><span class="meta-label">Format</span><span class="meta-val">Base64 → PDF</span></div>
+      <div class="meta-item"><span class="meta-label">Gate?</span><span class="meta-val"><span class="badge badge-gate">Yes</span> — consumer must sign before booking</span></div>
+    </div>
+    <p>Convert the Base64 response to PDF and display the U.S. Bank Avvance loan agreement to the customer <strong>before</strong> booking. The agreement includes the risk-based pricing notice. Consumer signs via the "SIGN AGREEMENT" action, which triggers <code>/book</code> with <code>"consent": "yes"</code>.</p>
+    <div class="consent-text" style="font-size:12.5px">
+      <strong>Signing disclosure (USB §1.1 §3):</strong> By clicking 'SIGN AGREEMENT' I acknowledge I've reviewed and agree to the loan agreement and I'll be completing my purchase using a U.S. Bank Avvance installment loan. &lt;I consent to U.S. Bank requesting my consumer credit report, which may affect my credit score&gt;.
+    </div>
+    <div class="callout callout-warn" style="margin-top:8px">
+      <span class="callout-label">Elavon §5.e — Post-Transaction Deletion</span>
+      After customer completes transaction (either booking or declining to book), Ottri must <strong>promptly delete</strong> the displayed loan agreement and risk-based pricing notice from its computing environment. Cannot disclose agreement contents to the merchant or any party other than the customer.
+    </div>
+  </div>
+</div>
+
+<div class="callout callout-warn">
+  <span class="callout-label">USB Pre-Booking Disclosures (Before Loan Agreement Signing)</span>
+  These are collected at Step 4, after consumer selects an offer but before signing the loan agreement. Per USB Section 1.1 §3:<br><br>
+  <strong>USB-05 — Cellular phone contact policy:</strong> "By providing us with a telephone number for a cellular phone or other wireless device, including a number that you later convert to a cellular number, you are expressly consenting to receiving communications — including but not limited to prerecorded or artificial voice message calls, text messages and calls made by an automatic telephone dialing system — from us and our affiliates and agents at that number. This express consent applies to each such telephone number that you provide to us now or in the future and permits such calls for non-marketing purposes. Calls and messages may incur access fees from your cellular provider."<br><br>
+  <strong>USB-06 — Email marketing preferences:</strong> "You may change your email marketing preferences at any time in the Privacy section of usbank.com. Note that confidential, personal or financial information will never be sent or requested in an email from U.S. Bank. We use email to communicate information about your application, accounts and offers for U.S. Bank products and services."<br><br>
+  Both must be viewed and agreed to before account booking.
+</div>
+
+<div class="callout">
+  <span class="callout-label">USB Decision Screen — Implementation Logic</span>
+  <code style="font-size:12px;display:block;margin-top:8px;white-space:pre;line-height:1.7;background:var(--surf);padding:12px;border-radius:6px">
+// Step 3: USB returns decision from /pre-approval/application
+if (offers.length > 0) {
+  show(offers);                    // all offers, USB-approved format
+  show(USB_04_preapproval_text);   // "valid for 15 days..."
+  show(loan_availability_text);    // "all displayed options available today..."
+  if (isCounterOffer) {
+    show(counterOfferAmount);      // H2: display counter, do NOT feed to waterfall
+  }
+}
+
+if (status === "declined") {
+  show(declineScreen);             // H1: cannot silently skip
+  renderAdverseActionPDF();        // H5: Base64 → PDF, if provided
+}
+
+if (status === "credit_freeze") {
+  show(creditFreezeMessage);       // H6: explain freeze, link to bureau
+}
+
+// Step 4: Consumer selects offer → pre-booking disclosures
+show(USB_05_cellular_policy);      // view + agree gate
+show(USB_06_email_prefs);          // view + agree gate
+
+// Step 5: Loan agreement
+renderLoanAgreementPDF();          // H4: Base64 → PDF
+show(signingDisclosure);           // "By clicking SIGN AGREEMENT..."
+onSign() → call /book { consent: "yes" }
+onDecline() → call /book { consent: "no" }
+promptDeleteAgreement();           // Elavon §5.e: delete after transaction</code>
+</div>
+
+<!-- ─── DECISION SCREEN COMPARISON ─── -->
+<h3>Decision Screen Comparison — Sunlight vs. USB</h3>
+<table>
+  <thead><tr><th style="width:160px">Scenario</th><th>Sunlight</th><th>U.S. Bank (Avvance)</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Approval</strong></td><td>Ottri renders: status, approved amount, product name, loan amount, monthly payments (split by product type HIS/HIN vs HII)</td><td>Ottri renders: all offers in USB-approved format. Pre-approval validity text. Offer terms hidden from merchant.</td></tr>
+    <tr><td><strong>Decline</strong></td><td>Ottri renders: "Declined" status. Sunlight handles adverse action per API response.</td><td>Ottri renders: decline screen (H1, cannot skip). USB delivers adverse action PDF (H5). <strong>Ottri must NOT author.</strong></td></tr>
+    <tr><td><strong>Pending</strong></td><td>Ottri renders: "Pending" status.</td><td>N/A in current USB API spec — decisioning is synchronous.</td></tr>
+    <tr><td><strong>Counter-offer</strong></td><td>N/A</td><td>Display counter amount (H2). Consumer accepts or declines. <strong>Cannot redirect to another lender.</strong></td></tr>
+    <tr><td><strong>Credit freeze</strong></td><td>Handled by Sunlight's response</td><td>Ottri renders freeze message (H6). Guide consumer to contact bureau.</td></tr>
+    <tr><td><strong>Dropped applicant</strong></td><td>3 conditional text variants (approval/decline/pending) with exact templates. <strong>Includes Spanish.</strong></td><td>N/A — USB handles co-applicant logic differently.</td></tr>
+    <tr><td><strong>Loan agreement</strong></td><td>Via Sunlight iframe or email</td><td>Base64 → PDF. Display before booking. Delete after transaction (Elavon §5.e).</td></tr>
+    <tr><td><strong>Adverse action</strong></td><td>Sunlight-originated</td><td>USB-originated. Ottri renders PDF only. Never author or supplement (Elavon §5.f).</td></tr>
+    <tr><td><strong>Re-submission</strong></td><td>—</td><td>H3: Must re-collect all consents and agreements on any re-submission.</td></tr>
+    <tr><td><strong>Hard pull consent</strong></td><td>At Sunlight credit submission</td><td>At loan agreement signing: "I consent to U.S. Bank requesting my consumer credit report, which may affect my credit score."</td></tr>
+  </tbody>
+</table>
+
+<!-- ═══════════════════════════════════════ -->
 <!-- SCREEN MAP -->
 <!-- ═══════════════════════════════════════ -->
 <h2 id="screens">Screen Map</h2>
@@ -906,8 +1210,4 @@ tbody tr:nth-child(even){background:var(--surf2)}
     <tr><td>9</td><td><strong>Post-routing UX pattern.</strong> Full screen? Modal? Inline expansion? Affects how lender-specific disclosures render.</td><td>🟠 Medium</td></tr>
     <tr><td>10</td><td><strong>Routing transparency.</strong> Document waterfall logic for Elavon per §4.3 — they can request share data and decisioning logic.</td><td>🟠 Medium</td></tr>
   </tbody>
-</table>
-
-<!-- ═══════════════════════════════════════ -->
-<!-- FOOTER -->
-<!-- ═══════════════════════════�
+<
